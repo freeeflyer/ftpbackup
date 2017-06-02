@@ -59,6 +59,7 @@ then
     done
 fi
 
+#  Backup PostgreSQL
 if [[ ! -z $PGSQL ]]
 then
     for pgbases in $PGSQL
@@ -67,6 +68,7 @@ then
     done
 fi
 
+#  Backup MySQL
 if [[ ! -z $MYSQL ]]
 then
     for mysqlbases in $MYSQL
