@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../etc/backup.ini
+source ./ftpbackup.ini
 if [ -z $FTPHOST ]
 then
     echo Missing config file ../etc/backup.ini
