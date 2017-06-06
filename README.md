@@ -10,3 +10,8 @@ Backup filesystems, databases (mysql, pgsql) in form of datestamped tgz files.
 It's in bash
 
 Feel free to fork/merge request :)
+
+# TODO
+- Finish test routine
+- Rationalize code
+- Add databases types
