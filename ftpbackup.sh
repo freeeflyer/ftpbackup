@@ -1,6 +1,5 @@
 #!/bin/bash
 CURLOPT="-s"
-LOGFILE="/var/log/ftpbackup.log"
 source ../etc/ftpbackup.ini
 if [ -z $FTPHOST ]
 then
