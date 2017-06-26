@@ -1,9 +1,9 @@
 #!/bin/bash
-CURLOPT="-s"
-source ../etc/ftpbackup.ini
+CURLOPT="-s --ftp-create-dirs"
+source ./ftpbackup.ini
 if [ -z $FTPHOST ]
 then
-    echo Missing config file ../etc/backup.ini
+    echo Missing config file ../etc/backup.ini | pipe2log
     exit 1
 fi
 
@@ -17,13 +17,19 @@ function pipe2log()
    cat | sed "s#^#${DATE}: #" >> $LOGFILE
 }
 
+function b2ftp()
+{
+   url=$1
+   curl $CURLOPT -T - ${1}
+}
+
 function do_backup_fs()
 {
    dir=${1/\//} # remove leading "/"
    filename="${DATE}_${dir//\//_}.tgz"
    url="ftp://${FTPUSER}:${FTPPWD}@${FTPHOST}/${HOSTNAME/ /}/${filename}"
    echo "Saving /$dir to ${FTPHOST}" | pipe2log
-   tar czf - /${dir} 2>/dev/null | curl $CURLOPT -T - ${url} | pipe2log
+   tar czf - /${dir} 2>/dev/null | b2ftp ${url} | pipe2log
 }
 
 function test_backup_fs()
@@ -43,7 +49,7 @@ function do_backup_mysql()
    filename="${DATE}_mysql_${base}.sql.gz"
    url="ftp://${FTPUSER}:${FTPPWD}@${FTPHOST}/${HOSTNAME/ /}/${filename}"
    echo "Saving mysql base $base to ${FTPHOST}" | pipe2log
-   mysqldump --defaults-file=${MYSQLPASSFILE} ${base} | gzip | curl $CURLOPT -T - ${url} | pipe2log
+   mysqldump --defaults-file=${MYSQLPASSFILE} ${base} | gzip | b2ftp ${url} | pipe2log
 }
 
 function do_backup_pg()
@@ -52,7 +58,7 @@ function do_backup_pg()
    filename="${DATE}_pgsql_${base}.sql.gz"
    url="ftp://${FTPUSER}:${FTPPWD}@${FTPHOST}/${HOSTNAME/ /}/${filename}"
    echo "Saving pg base $base to ${FTPHOST}" | pipe2log
-   sudo -u postgres pg_dump ${base} | gzip | curl $CURLOPT -T - ${url} | pipe2log
+   sudo -u postgres pg_dump ${base} | gzip | b2ftp ${url} | pipe2log
    echo "Status : ${PIPESTATUS[*]}" | pipe2log
 }
 
@@ -83,5 +89,4 @@ then
        do_backup_mysql $mysqlbases
     done
 fi
-
 
